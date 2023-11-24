@@ -162,4 +162,3 @@ class EcosistemaVisual(arcade.Window):
 ecosistema = Ecosistema(10, 10)
 app = EcosistemaVisual(ecosistema)
 arcade.run()
-
