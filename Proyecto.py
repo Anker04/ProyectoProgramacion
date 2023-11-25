@@ -12,8 +12,8 @@ snow_texture = arcade.load_texture("nieve.png")
 sand_texture = arcade.load_texture("arena.png")
 
 # Animales
-cebra_texture = arcade.load_texture("cebra.png")
-leon_texture = arcade.load_texture("leon.png")
+cebra_texture = arcade.load_texture("vaca.png")
+leon_texture = arcade.load_texture("lobo.png")
 
 # Crear la matriz del mapa
 mapa = [
@@ -62,24 +62,30 @@ class Animal(Organismo):
         super().__init__(x, y)
         self.especie = especie
         self.dieta = dieta
+        self.ciclos = 0
 
     def cazar(self, presa):
         # Lógica de caza
         pass
 
-    def mover_aleatoriamente(self):
-        nueva_x = self.x + random.choice([-1, 0, 1])
-        nueva_y = self.y + random.choice([-1, 0, 1])
+    def mover_aleatoriamente(self, ecosistema):
+        if self.ciclos % self.velocidad == 0:
+            nueva_x = self.x + random.choice([-1, 0, 1])
+            nueva_y = self.y + random.choice([-1, 0, 1])
 
-        # Verifica si la nueva posición está dentro de los límites del mapa
-        if 0 <= nueva_x < len(ecosistema.matriz_espacial) and 0 <= nueva_y < len(
-            ecosistema.matriz_espacial[0]
-        ):
-            # Mueve el animal a la nueva posición
-            ecosistema.matriz_espacial[self.x][self.y] = None
-            self.x = nueva_x
-            self.y = nueva_y
-            ecosistema.matriz_espacial[self.x][self.y] = self
+            # Verifica si la nueva posición está dentro de los límites del mapa
+            if 0 <= nueva_x < len(ecosistema.matriz_espacial) and 0 <= nueva_y < len(
+                ecosistema.matriz_espacial[0]
+            ):
+                # Verifica si la nueva posición está ocupada por otra entidad
+                if ecosistema.matriz_espacial[nueva_x][nueva_y] is None:
+                    # Mueve el animal a la nueva posición
+                    ecosistema.matriz_espacial[self.x][self.y] = None
+                    self.x = nueva_x
+                    self.y = nueva_y
+                    ecosistema.matriz_espacial[self.x][self.y] = self
+
+        self.ciclos += 1
 
 
 class Planta(Organismo):
@@ -119,8 +125,8 @@ class Ecosistema:
 
     def iniciar_ecosistema(self):
         # Lógica para inicializar el ecosistema
-        animal1 = Animal(5, 5, "leon", "carnivoro")
-        animal2 = Animal(8, 8, "Cebra", "Herbívoro")
+        animal1 = Animal(5, 5, "lobo", "carnivoro")
+        animal2 = Animal(8, 8, "vaca", "Herbívoro")
         self.matriz_espacial[animal1.x][animal1.y] = animal1
         self.matriz_espacial[animal2.x][animal2.y] = animal2
 
@@ -131,7 +137,7 @@ class Ecosistema:
             for columna in range(len(self.matriz_espacial[0])):
                 organismo = self.matriz_espacial[fila][columna]
                 if isinstance(organismo, Animal):
-                    organismo.mover_aleatoriamente()
+                    organismo.mover_aleatoriamente(self)
 
     def cadena_alimenticia(self):
         # Lógica de la cadena alimenticia
@@ -146,6 +152,9 @@ class EcosistemaVisual(arcade.Window):
     def __init__(self, ecosistema):
         super().__init__(800, 600, "Simulador de Ecosistema")
         self.ecosistema = ecosistema
+
+    def on_update(self, delta_time):
+        self.ecosistema.ciclo_vida_reproduccion()
 
     def on_draw(self):
         arcade.start_render()
@@ -178,10 +187,10 @@ class EcosistemaVisual(arcade.Window):
                 # Dibujar textura del animal si hay uno en esa posición
                 organismo = self.ecosistema.matriz_espacial[fila][columna]
                 if isinstance(organismo, Animal):
-                    if organismo.especie == "leon":
-                        texture = leon_texture
-                    elif organismo.especie == "Cebra":
-                        texture = cebra_texture
+                    if organismo.especie == "lobo":
+                        texture = leon_texture  # Corregir a leon_texture
+                    elif organismo.especie == "vaca":
+                        texture = cebra_texture  # Corregir a vaca_texture
                     arcade.draw_texture_rectangle(
                         x + tile_size / 2,
                         y + tile_size / 2,
@@ -196,3 +205,4 @@ class EcosistemaVisual(arcade.Window):
 ecosistema = Ecosistema(20, 25)
 app = EcosistemaVisual(ecosistema)
 arcade.run()
+
