@@ -1,169 +1,198 @@
-# -*- coding: utf-8 -*-
-import pyglet
+import arcade
 import random
 
 
-class MatrizEspacial:
-    def __init__(self, width, height):
-        self.width = width
-        self.height = height
-        self.celdas = [[None for _ in range(width)] for _ in range(height)]
+# Cargar tiles
+tile_size = 32
+# Texturas
+dirt_texture = arcade.load_texture("tierra.jpg")
+grass_texture = arcade.load_texture("pasto.png")
+water_texture = arcade.load_texture("agua.jpg")
+snow_texture = arcade.load_texture("nieve.png")
+sand_texture = arcade.load_texture("arena.png")
 
-    def agregar_organismo(self, organismo, x, y):
-        self.celdas[y][x] = organismo
+# Animales
+cebra_texture = arcade.load_texture("cebra.png")
+leon_texture = arcade.load_texture("leon.png")
 
-    def remover_organismo(self, x, y):
-        self.celdas[y][x] = None
-
-    def obtener_organismo(self, x, y):
-        return self.celdas[y][x]
-
-
-class Ambiente:
-    def __init__(self):
-        # Lógica para la creación del ambiente
-        pass
-
-    def generar_evento_climatico(self):
-        # Lógica para generar eventos climáticos aleatorios
-        pass
-
-
-class Ecosistema:
-    
-    def __init__(self, width, height):
-        self.organismos = []
-        self.ambiente = Ambiente()
-        self.matriz_espacial = MatrizEspacial(width, height)
-        self.eventos = []
-        self.tile_map = TileMap(image_path="pasto.png", tile_width=32, tile_height=32)
-
-    def agregar_organismo(self, organismo, x, y):
-        self.organismos.append(organismo)
-        self.matriz_espacial.agregar_organismo(organismo, x, y)
-
-    def remover_organismo(self, organismo, x, y):
-        self.organismos.remove(organismo)
-        self.matriz_espacial.remover_organismo(x, y)
-
-    def simular_ciclo(self, dt):
-        for evento in self.eventos:
-            evento.aplicar(self)
-        for organismo in self.organismos:
-            organismo.actualizar(dt)
-
-    def dibujar_tile_map(self):
-        self.tile_map.draw()
-
-class TileMap:
-    def __init__(self, image_path, tile_width, tile_height, matriz_espacial):
-        self.image = pyglet.resource.image(image_path)
-        self.tile_width = tile_width
-        self.tile_height = tile_height
-        self.matriz_espacial = matriz_espacial
-
-    def draw(self):
-        for row_index, row in enumerate(self.matriz_espacial.biomas):
-            for col_index, bioma_id in enumerate(row):
-                bioma = obtener_bioma_por_id(bioma_id)
-                color = bioma.color if bioma else (255, 255, 255)  # Color predeterminado si no hay bioma definido
-                x = col_index * self.tile_width
-                y = row_index * self.tile_height
-                self.image.get_region(x, y, self.tile_width, self.tile_height).blit(
-                    x, y, width=self.tile_width, height=self.tile_height, color=color
-                )
+# Crear la matriz del mapa
+mapa = [
+    [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 2, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 1, 1, 1, 1, 1, 1, 0, 2, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 1, 1, 1, 1, 1, 1, 0, 2, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
+]
 
 
-class SimuladorWindow(pyglet.window.Window):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.ecosistema = Ecosistema(
-            width=800, height=600
-        )  # Ajusta las dimensiones según tus necesidades
-
-    def on_draw(self):
-        self.clear()
-        self.ecosistema.dibujar_tile_map()
-        for organismo in self.ecosistema.organismos:
-            organismo.dibujar()
-
-
-def update(dt):
-    window.ecosistema.simular_ciclo(dt)
-
-
+# Definición de clases
 class Organismo:
-    def __init__(self, posicion, vida, energia, velocidad):
-        self.posicion = posicion
-        self.vida = vida
-        self.energia = energia
-        self.velocidad = velocidad
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.vida = 100
+        self.energia = 50
+        self.velocidad = 1
 
-    def moverse(self):
-        # Lógica para el movimiento del organismo
+    def mover(self):
+        # Lógica de movimiento
         pass
 
-    def reproducirse(self, otro_organismo):
-        # Lógica para la reproducción del organismo
-        pass
-
-    def morir(self):
-        # Lógica para la muerte del organismo
-        pass
-
-    def actualizar(self, dt):
-        # Lógica para la actualización del organismo en cada ciclo
-        pass
-
-    def dibujar(self):
-        # Lógica para dibujar el organismo
+    def reproducir(self, pareja):
+        # Lógica de reproducción
         pass
 
 
 class Animal(Organismo):
-    def __init__(self, posicion, vida, energia, velocidad, especie, dieta):
-        super().__init__(posicion, vida, energia, velocidad)
+    def __init__(self, x, y, especie, dieta):
+        super().__init__(x, y)
         self.especie = especie
         self.dieta = dieta
 
     def cazar(self, presa):
-        # Lógica para la caza del animal
+        # Lógica de caza
         pass
+
+    def mover_aleatoriamente(self):
+        nueva_x = self.x + random.choice([-1, 0, 1])
+        nueva_y = self.y + random.choice([-1, 0, 1])
+
+        # Verifica si la nueva posición está dentro de los límites del mapa
+        if 0 <= nueva_x < len(ecosistema.matriz_espacial) and 0 <= nueva_y < len(
+            ecosistema.matriz_espacial[0]
+        ):
+            # Mueve el animal a la nueva posición
+            ecosistema.matriz_espacial[self.x][self.y] = None
+            self.x = nueva_x
+            self.y = nueva_y
+            ecosistema.matriz_espacial[self.x][self.y] = self
 
 
 class Planta(Organismo):
-    def __init__(self, posicion, vida, energia, velocidad):
-        super().__init__(posicion, vida, energia, velocidad)
+    def __init__(self, x, y):
+        super().__init__(x, y)
 
     def fotosintesis(self):
-        # Lógica para la fotosíntesis de la planta
-        pass
-
-    def reproducirse_por_semillas(self):
-        # Lógica para la reproducción por semillas de la planta
+        # Lógica de fotosíntesis
         pass
 
 
-if __name__ == "__main__":
-    window = SimuladorWindow(width=800, height=600, caption="Simulador Ecológico")
-    ecosistema = Ecosistema(
-        width=100, height=100
-    )  # Ajusta las dimensiones según tus necesidades
+class Ambiente:
+    def __init__(self):
+        # Lógica para inicializar el ambiente
+        pass
 
-    # Agrega algunos organismos al ecosistema
-    organismo1 = Animal(
-        posicion=(10, 20),
-        vida=100,
-        energia=50,
-        velocidad=5,
-        especie="León",
-        dieta="Carnívoro",
-    )
 
-    organismo2 = Planta(posicion=(50, 40), vida=50, energia=30, velocidad=2)
+class Ecosistema:
+    def __init__(self, filas, columnas):
+        self.matriz_espacial = [[None for _ in range(columnas)] for _ in range(filas)]
+        self.iniciar_ecosistema()
 
-    ecosistema.agregar_organismo(organismo1, x=10, y=20)
-    ecosistema.agregar_organismo(organismo2, x=50, y=40)
+    def asignar_biomas(self):
+        biomas = {
+            0: "Tierra",
+            1: "Pasto",
+            2: "Agua",
+            3: "Nieve",
+            4: "Arena"
+            # Agrega más tipos de biomas según sea necesario
+        }
 
-    pyglet.clock.schedule_interval(update, 1 / 60.0)
-    pyglet.app.run()
+        for fila in range(len(self.matriz_espacial)):
+            for columna in range(len(self.matriz_espacial[0])):
+                tipo_bioma = biomas[mapa[fila][columna]]
+                self.matriz_espacial[fila][columna] = tipo_bioma
+
+    def iniciar_ecosistema(self):
+        # Lógica para inicializar el ecosistema
+        animal1 = Animal(5, 5, "leon", "carnivoro")
+        animal2 = Animal(8, 8, "Cebra", "Herbívoro")
+        self.matriz_espacial[animal1.x][animal1.y] = animal1
+        self.matriz_espacial[animal2.x][animal2.y] = animal2
+
+        # Lógica para inicializar el ecosistema
+
+    def ciclo_vida_reproduccion(self):
+        for fila in range(len(self.matriz_espacial)):
+            for columna in range(len(self.matriz_espacial[0])):
+                organismo = self.matriz_espacial[fila][columna]
+                if isinstance(organismo, Animal):
+                    organismo.mover_aleatoriamente()
+
+    def cadena_alimenticia(self):
+        # Lógica de la cadena alimenticia
+        pass
+
+    def actualizar_ecosistema(self):
+        # Lógica para actualizar el estado del ecosistema en cada ciclo
+        pass
+
+
+class EcosistemaVisual(arcade.Window):
+    def __init__(self, ecosistema):
+        super().__init__(800, 600, "Simulador de Ecosistema")
+        self.ecosistema = ecosistema
+
+    def on_draw(self):
+        arcade.start_render()
+        self.draw_map()
+
+    def draw_map(self):
+        for fila in range(len(mapa)):
+            for columna in range(len(mapa[0])):
+                if mapa[fila][columna] == 0:
+                    texture = dirt_texture
+                elif mapa[fila][columna] == 1:
+                    texture = grass_texture
+                elif mapa[fila][columna] == 2:
+                    texture = water_texture
+                elif mapa[fila][columna] == 3:
+                    texture = snow_texture
+                elif mapa[fila][columna] == 4:
+                    texture = sand_texture
+
+                x = columna * tile_size
+                y = fila * tile_size
+                arcade.draw_texture_rectangle(
+                    x + tile_size / 2,
+                    y + tile_size / 2,
+                    tile_size,
+                    tile_size,
+                    texture,
+                    0,
+                )
+                # Dibujar textura del animal si hay uno en esa posición
+                organismo = self.ecosistema.matriz_espacial[fila][columna]
+                if isinstance(organismo, Animal):
+                    if organismo.especie == "leon":
+                        texture = leon_texture
+                    elif organismo.especie == "Cebra":
+                        texture = cebra_texture
+                    arcade.draw_texture_rectangle(
+                        x + tile_size / 2,
+                        y + tile_size / 2,
+                        tile_size,
+                        tile_size,
+                        texture,
+                        0,
+                    )
+
+
+# Ejecutar el simulador
+ecosistema = Ecosistema(20, 25)
+app = EcosistemaVisual(ecosistema)
+arcade.run()
