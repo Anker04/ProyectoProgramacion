@@ -14,6 +14,7 @@ sand_texture = arcade.load_texture("arena.png")
 # Animales
 cebra_texture = arcade.load_texture("vaca.png")
 leon_texture = arcade.load_texture("lobo.png")
+oveja_texture = arcade.load_texture("oveja.png")
 
 # plantas
 tree_texture = arcade.load_texture("arbol.png")
@@ -52,14 +53,6 @@ class Organismo:
         self.energia = 50
         self.velocidad = 1
 
-    def mover(self):
-        # Lógica de movimiento
-        pass
-
-    def reproducir(self, pareja):
-        # Lógica de reproducción
-        pass
-
 
 class Animal(Organismo):
     def __init__(self, x, y, especie, dieta):
@@ -68,17 +61,14 @@ class Animal(Organismo):
         self.dieta = dieta
         self.ciclos = 0
         self.velocidad = 10  # Ajusta la velocidad según tus preferencias
+        self.tiempo_de_vida = 500
 
     def cazar(self, presa):
         if isinstance(presa, Planta):
-            # Si la presa es una planta, el animal obtiene energía
             self.energia += presa.energia
-            # Elimina la planta de la matriz de organismos
             ecosistema.matriz_espacial[presa.x][presa.y] = None
         elif isinstance(presa, Animal):
-            # Si la presa es un animal, el animal obtiene energía
             self.energia += presa.energia
-            # Elimina al animal de la matriz de organismos
             ecosistema.matriz_espacial[presa.x][presa.y] = None
 
     def mover_aleatoriamente(self, ecosistema):
@@ -86,35 +76,92 @@ class Animal(Organismo):
             nueva_x = self.x + random.choice([-1, 0, 1])
             nueva_y = self.y + random.choice([-1, 0, 1])
 
-            # Verifica si la nueva posición está dentro de los límites del mapa
             if 0 <= nueva_x < len(ecosistema.matriz_espacial) and 0 <= nueva_y < len(
                 ecosistema.matriz_espacial[0]
             ):
-                # Verifica si la nueva posición está ocupada por otra entidad
                 organismo_en_nueva_posicion = ecosistema.matriz_espacial[nueva_x][
                     nueva_y
                 ]
                 if organismo_en_nueva_posicion is None:
-                    # Mueve el animal a la nueva posición
                     ecosistema.matriz_espacial[self.x][self.y] = None
                     self.x = nueva_x
                     self.y = nueva_y
                     ecosistema.matriz_espacial[self.x][self.y] = self
                 elif isinstance(organismo_en_nueva_posicion, (Planta, Animal)):
-                    # Intenta cazar a la presa en la nueva posición
                     self.cazar(organismo_en_nueva_posicion)
-
         self.ciclos += 1
+        self.tiempo_de_vida -= 1
+        if self.tiempo_de_vida <= 0:
+            ecosistema.matriz_espacial[self.x][self.y] = None
+
+    def reproducir(self, pareja):
+        if (
+            isinstance(pareja, Animal)
+            and self.especie == pareja.especie
+            and self.energia > 50
+            and pareja.energia > 50
+        ):
+            nueva_energia = (self.energia + pareja.energia) // 2
+            nueva_posicion = self.encontrar_posicion_libre(self.x, self.y)
+            if nueva_posicion:
+                hijo = Animal(
+                    nueva_posicion[0], nueva_posicion[1], self.especie, self.dieta
+                )
+                hijo.energia = nueva_energia
+                self.energia //= 2
+                pareja.energia //= 2
+                return hijo
+
+    def encontrar_posicion_libre(self, x, y):
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                nueva_x, nueva_y = x + i, y + j
+                if (
+                    0 <= nueva_x < len(ecosistema.matriz_espacial)
+                    and 0 <= nueva_y < len(ecosistema.matriz_espacial[0])
+                    and ecosistema.matriz_espacial[nueva_x][nueva_y] is None
+                ):
+                    return nueva_x, nueva_y
 
 
 class Planta(Organismo):
     def __init__(self, x, y, especie="planta"):
         super().__init__(x, y)
         self.especie = especie
+        self.edad = 0
 
     def fotosintesis(self):
         # Lógica de fotosíntesis
         self.energia += 5
+
+    def crecer(self):
+        # Lógica de crecimiento
+        self.edad += 1
+        if self.edad >= 5:
+            # La planta alcanza la madurez y puede reproducirse
+            self.reproducir()
+
+    def reproducir(self):
+        # Lógica de reproducción para las plantas
+        nueva_posicion = self.encontrar_posicion_libre(self.x, self.y)
+        if nueva_posicion:
+            nueva_planta = Planta(nueva_posicion[0], nueva_posicion[1], self.especie)
+            # Las plantas jóvenes tienen más energía para empezar
+            nueva_planta.energia = self.energia // 2
+            self.energia //= 2
+            return nueva_planta
+
+    def encontrar_posicion_libre(self, x, y):
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                nueva_x, nueva_y = x + i, y + j
+                if (
+                    0 <= nueva_x < len(ecosistema.matriz_espacial)
+                    and 0 <= nueva_y < len(ecosistema.matriz_espacial[0])
+                    and ecosistema.matriz_espacial[nueva_x][nueva_y] is None
+                ):
+                    return nueva_x, nueva_y
+        return None
 
 
 class Ambiente:
@@ -143,18 +190,34 @@ class Ecosistema:
                 tipo_bioma = biomas[mapa[fila][columna]]
                 self.matriz_espacial[fila][columna] = tipo_bioma
 
+    def encontrar_pareja(self, x, y):
+        for i in range(-2, 3):
+            for j in range(-2, 3):
+                nueva_x, nueva_y = x + i, y + j
+                if 0 <= nueva_x < len(
+                    ecosistema.matriz_espacial
+                ) and 0 <= nueva_y < len(ecosistema.matriz_espacial[0]):
+                    organismo = self.matriz_espacial[nueva_x][nueva_y]
+                    if isinstance(organismo, Animal) and organismo.especie == "lobo":
+                        return organismo
+
     def iniciar_ecosistema(self):
-        # Lógica para inicializar el ecosistema
         animal1 = Animal(5, 5, "lobo", "carnivoro")
-        animal2 = Animal(8, 8, "vaca", "Herbívoro")
+        animal2 = Animal(8, 8, "vaca", "herbivoro")
+        animal3 = Animal(5, 4, "oveja", "herviboro")
+        # Agrega más animales según sea necesario
+        # ...
         planta1 = Planta(3, 3, "planta")
         planta2 = Planta(12, 12, "arbol")
         self.matriz_espacial[animal1.x][animal1.y] = animal1
         self.matriz_espacial[animal2.x][animal2.y] = animal2
+        self.matriz_espacial[animal3.x][animal3.y] = animal3
+        # Agrega más animales según sea necesario
+        # ...
         self.matriz_espacial[planta1.x][planta1.y] = planta1
         self.matriz_espacial[planta2.x][planta2.y] = planta2
 
-        # Lógica para inicializar el ecosistema
+        self.actualizar_ecosistema
 
     def ciclo_vida_reproduccion(self):
         for fila in range(len(self.matriz_espacial)):
@@ -162,8 +225,6 @@ class Ecosistema:
                 organismo = self.matriz_espacial[fila][columna]
                 if isinstance(organismo, Animal):
                     organismo.mover_aleatoriamente(self)
-                elif isinstance(organismo, Planta):
-                    organismo.fotosintesis()
 
     def cadena_alimenticia(self):
         # Lógica de la cadena alimenticia
@@ -217,6 +278,8 @@ class EcosistemaVisual(arcade.Window):
                         texture_animal = leon_texture
                     elif organismo.especie == "vaca":
                         texture_animal = cebra_texture
+                    elif organismo.especie == "oveja":
+                        texture_animal == oveja_texture
                     arcade.draw_texture_rectangle(
                         x + tile_size / 2,
                         y + tile_size / 2,
@@ -244,5 +307,3 @@ class EcosistemaVisual(arcade.Window):
 ecosistema = Ecosistema(20, 25)
 app = EcosistemaVisual(ecosistema)
 arcade.run()
-
-
