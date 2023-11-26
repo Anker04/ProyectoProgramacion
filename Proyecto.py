@@ -70,8 +70,16 @@ class Animal(Organismo):
         self.velocidad = 10  # Ajusta la velocidad según tus preferencias
 
     def cazar(self, presa):
-        # Lógica de caza
-        pass
+        if isinstance(presa, Planta):
+            # Si la presa es una planta, el animal obtiene energía
+            self.energia += presa.energia
+            # Elimina la planta de la matriz de organismos
+            ecosistema.matriz_espacial[presa.x][presa.y] = None
+        elif isinstance(presa, Animal):
+            # Si la presa es un animal, el animal obtiene energía
+            self.energia += presa.energia
+            # Elimina al animal de la matriz de organismos
+            ecosistema.matriz_espacial[presa.x][presa.y] = None
 
     def mover_aleatoriamente(self, ecosistema):
         if self.ciclos % self.velocidad == 0:
@@ -83,12 +91,18 @@ class Animal(Organismo):
                 ecosistema.matriz_espacial[0]
             ):
                 # Verifica si la nueva posición está ocupada por otra entidad
-                if ecosistema.matriz_espacial[nueva_x][nueva_y] is None:
+                organismo_en_nueva_posicion = ecosistema.matriz_espacial[nueva_x][
+                    nueva_y
+                ]
+                if organismo_en_nueva_posicion is None:
                     # Mueve el animal a la nueva posición
                     ecosistema.matriz_espacial[self.x][self.y] = None
                     self.x = nueva_x
                     self.y = nueva_y
                     ecosistema.matriz_espacial[self.x][self.y] = self
+                elif isinstance(organismo_en_nueva_posicion, (Planta, Animal)):
+                    # Intenta cazar a la presa en la nueva posición
+                    self.cazar(organismo_en_nueva_posicion)
 
         self.ciclos += 1
 
@@ -230,4 +244,5 @@ class EcosistemaVisual(arcade.Window):
 ecosistema = Ecosistema(20, 25)
 app = EcosistemaVisual(ecosistema)
 arcade.run()
+
 
