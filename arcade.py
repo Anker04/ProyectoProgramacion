@@ -4,57 +4,38 @@ import random
 
 # Cargar tiles
 tile_size = 32
+# Texturas
 dirt_texture = arcade.load_texture("tierra.jpg")
 grass_texture = arcade.load_texture("pasto.png")
 water_texture = arcade.load_texture("agua.jpg")
 snow_texture = arcade.load_texture("nieve.png")
 sand_texture = arcade.load_texture("arena.png")
 
+# Animales
+animal_texture = arcade.load_texture("vaca.png")
+
 # Crear la matriz del mapa
 mapa = [
-    [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
-    [1, 0, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
+    [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 2, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 1, 1, 1, 1, 1, 1, 0, 2, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 1, 1, 1, 1, 1, 1, 0, 2, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
-    [3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
-    [3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
-    [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
-    [3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
-    [3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
-    [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
-    [3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
-    [3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2],
 ]
-
-filas_originales = len(mapa)
-columnas_originales = len(mapa[0])
-
-# Dimensiones del mapa ampliado
-nuevas_filas = 20
-nuevas_columnas = 25
-
-# Generar una nueva matriz más grande
-nuevo_mapa = [
-    [random.randint(1, 4) for _ in range(nuevas_columnas)] for _ in range(nuevas_filas)
-]
-
-# Copiar el contenido de la matriz original al centro de la nueva matriz
-fila_inicial = (nuevas_filas - filas_originales) // 2
-columna_inicial = (nuevas_columnas - columnas_originales) // 2
-
-for i in range(filas_originales):
-    for j in range(columnas_originales):
-        nuevo_mapa[fila_inicial + i][columna_inicial + j] = mapa[i][j]
-
-# Actualizar la variable 'mapa' con la nueva matriz
-mapa = nuevo_mapa
 
 
 # Definición de clases
@@ -106,13 +87,51 @@ class Ecosistema:
         self.matriz_espacial = [[None for _ in range(columnas)] for _ in range(filas)]
         self.iniciar_ecosistema()
 
+    def asignar_biomas(self):
+        biomas = {
+            0: "Tierra",
+            1: "Pasto",
+            2: "Agua",
+            3: "Nieve",
+            4: "Arena"
+            # Agrega más tipos de biomas según sea necesario
+        }
+
+        for fila in range(len(self.matriz_espacial)):
+            for columna in range(len(self.matriz_espacial[0])):
+                tipo_bioma = biomas[mapa[fila][columna]]
+                self.matriz_espacial[fila][columna] = tipo_bioma
+
     def iniciar_ecosistema(self):
         # Lógica para inicializar el ecosistema
+
+        animal1 = Animal(5, 5, "leon", "carnivoro")
+        animal2 = Animal(8, 8, "Cebra", "Herbívoro")
+        self.matriz_espacial[animal1.x][animal1.y] = animal1
+        self.matriz_espacial[animal2.x][animal2.y] = animal2
         pass
 
     def ciclo_vida_reproduccion(self):
-        # Lógica del ciclo de vida y reproducción
-        pass
+        for fila in range(len(self.matriz_espacial)):
+            for columna in range(len(self.matriz_espacial[0])):
+                organismo = self.matriz_espacial[fila][columna]
+                if isinstance(organismo, Animal):
+                    # Lógica para el movimiento de los animales
+                    nueva_x = fila + 1  # Ajusta la lógica según sea necesario
+                    nueva_y = columna + 1  # Ajusta la lógica según sea necesario
+
+                    # Verifica si la nueva posición está dentro de los límites del mapa
+                    if 0 <= nueva_x < len(self.matriz_espacial) and 0 <= nueva_y < len(
+                        self.matriz_espacial[0]
+                    ):
+                        # Verifica si el animal puede moverse al tipo de bioma en la nueva posición
+                        nuevo_bioma = self.matriz_espacial[nueva_x][nueva_y]
+                        if organismo.puede_moverse_a(nuevo_bioma):
+                            # Mueve el animal a la nueva posición
+                            self.matriz_espacial[organismo.x][organismo.y] = None
+                            organismo.x = nueva_x
+                            organismo.y = nueva_y
+                            self.matriz_espacial[organismo.x][organismo.y] = organismo
 
     def cadena_alimenticia(self):
         # Lógica de la cadena alimenticia
@@ -162,3 +181,7 @@ class EcosistemaVisual(arcade.Window):
 ecosistema = Ecosistema(10, 10)
 app = EcosistemaVisual(ecosistema)
 arcade.run()
+
+
+
+
