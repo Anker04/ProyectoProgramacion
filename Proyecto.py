@@ -3,13 +3,14 @@ import random
 import tkinter as tk
 
 # Cargar tiles
-tile_size = 32
+tile_size = 30
 # Texturas
 dirt_texture = arcade.load_texture("tierra.jpg")
 grass_texture = arcade.load_texture("pasto.png")
 water_texture = arcade.load_texture("agua.jpg")
 snow_texture = arcade.load_texture("nieve.png")
 sand_texture = arcade.load_texture("arena.png")
+ice_texture = arcade.load_texture("hielo.png")
 
 # Animales
 cebra_texture = arcade.load_texture("vaca.png")
@@ -19,28 +20,30 @@ oveja_texture = arcade.load_texture("oveja.png")
 # plantas
 tree_texture = arcade.load_texture("arbol.png")
 Planta_texture = arcade.load_texture("planta.png")
+cactus_texture = arcade.load_texture("cactus.png")
 
 # Crear la matriz del mapa
 mapa = [
-    [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 2, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-    [1, 1, 1, 1, 1, 1, 1, 1, 0, 2, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-    [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-    [1, 1, 1, 1, 1, 1, 1, 1, 0, 2, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-    [1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-    [1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-    [1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
-    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
-    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
-    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
-    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
-    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
-    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
-    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
-    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
-    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
-    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
-    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 2, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 0, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 0, 1, 1, 0, 1, 1, 1, 2, 2, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 0, 1, 1, 1, 1, 0, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [2, 2, 1, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1],
+    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [2, 2, 3, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [3, 3, 5, 3, 5, 5, 3, 3, 3, 3, 5, 3, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1],
+    [3, 3, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [3, 3, 3, 3, 3, 5, 5, 3, 5, 3, 3, 3, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1],
+    [3, 3, 5, 3, 3, 5, 3, 3, 3, 3, 3, 3, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [3, 3, 5, 5, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [5, 3, 5, 5, 3, 3, 3, 5, 3, 3, 3, 3, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [5, 5, 5, 3, 3, 3, 5, 3, 3, 3, 3, 3, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [5, 5, 5, 3, 3, 3, 5, 3, 3, 3, 3, 3, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ]
 
 
@@ -52,6 +55,9 @@ class Organismo:
         self.vida = 100
         self.energia = 50
         self.velocidad = 1
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------#
 
 
 class Animal(Organismo):
@@ -131,6 +137,15 @@ class Animal(Organismo):
                 ):
                     return nueva_x, nueva_y
 
+    def envejecer(self):
+        # Lógica para envejecimiento de los animales
+        self.vida -= 1
+        if self.vida <= 0:
+            ecosistema.matriz_espacial[self.x][self.y] = None
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------#
+
 
 class Planta(Organismo):
     def __init__(self, x, y, especie="planta"):
@@ -171,11 +186,32 @@ class Planta(Organismo):
                     return nueva_x, nueva_y
         return None
 
+    def fotosintesis_diaria(self):
+        # Lógica para fotosíntesis diaria de las plantas
+        if self.energia < 100:
+            self.fotosintesis()
+
+    def crecimiento_diario(self):
+        # Lógica para crecimiento diario de las plantas
+        if self.edad < 10:
+            self.crecer()
+
+    def actualizar_estado(self):
+        # Lógica para actualizar el estado de la planta en cada ciclo
+        self.fotosintesis_diaria()
+        self.crecimiento_diario()
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------#
+
 
 class Ambiente:
     def __init__(self):
         # Lógica para inicializar el ambiente
         pass
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------#
 
 
 class Ecosistema:
@@ -189,7 +225,8 @@ class Ecosistema:
             1: "Pasto",
             2: "Agua",
             3: "Nieve",
-            4: "Arena"
+            4: "Arena",
+            5: "hielo"
             # Agrega más tipos de biomas según sea necesario
         }
 
@@ -215,17 +252,29 @@ class Ecosistema:
 
     def iniciar_ecosistema(self):
         animal1 = Animal(5, 5, "lobo", "carnivoro")
-        animal2 = Animal(8, 8, "vaca", "herbivoro")
-        animal3 = Animal(5, 4, "oveja", "herviboro")
-        animal4 = Animal(7, 9, "lobo", "carnivoro")
+        animal2 = Animal(9, 10, "vaca", "herbivoro")
+        animal3 = Animal(5, 19, "oveja", "herviboro")
+        animal4 = Animal(7, 17, "lobo", "carnivoro")
         animal5 = Animal(1, 9, "vaca", "herbivoro")
         animal6 = Animal(3, 9, "oveja", "herviboro")
+        animal7 = Animal(9, 8, "lobo", "carnivoro")
+        animal8 = Animal(2, 3, "vaca", "herbivoro")
+        animal9 = Animal(4, 7, "oveja", "herviboro")
+        animal10 = Animal(1, 4, "lobo", "carnivoro")
+        animal11 = Animal(1, 6, "vaca", "herbivoro")
+        animal12 = Animal(1, 0, "oveja", "herviboro")
         # Agrega más animales según sea necesario
         # ...
         planta1 = Planta(3, 3, "planta")
-        planta2 = Planta(12, 12, "arbol")
+        planta2 = Planta(10, 22, "arbol")
         planta3 = Planta(5, 7, "planta")
-        planta4 = Planta(10, 20, "arbol")
+        planta4 = Planta(11, 20, "arbol")
+        planta5 = Planta(5, 2, "planta")
+        planta6 = Planta(5, 11, "arbol")
+        planta7 = Planta(2, 7, "planta")
+        planta8 = Planta(17, 19, "arbol")
+        planta9 = Planta(4, 19, "cactus")
+        planta10 = Planta(5, 19, "cactus")
 
         # logica animales
         self.matriz_espacial[animal1.x][animal1.y] = animal1
@@ -234,12 +283,24 @@ class Ecosistema:
         self.matriz_espacial[animal4.x][animal4.y] = animal4
         self.matriz_espacial[animal5.x][animal5.y] = animal5
         self.matriz_espacial[animal6.x][animal6.y] = animal6
+        self.matriz_espacial[animal7.x][animal7.y] = animal7
+        self.matriz_espacial[animal8.x][animal8.y] = animal8
+        self.matriz_espacial[animal9.x][animal9.y] = animal9
+        self.matriz_espacial[animal10.x][animal10.y] = animal10
+        self.matriz_espacial[animal11.x][animal11.y] = animal11
+        self.matriz_espacial[animal12.x][animal12.y] = animal12
 
         # logica plantas
         self.matriz_espacial[planta1.x][planta1.y] = planta1
         self.matriz_espacial[planta2.x][planta2.y] = planta2
         self.matriz_espacial[planta3.x][planta3.y] = planta3
         self.matriz_espacial[planta4.x][planta4.y] = planta4
+        self.matriz_espacial[planta5.x][planta5.y] = planta5
+        self.matriz_espacial[planta6.x][planta6.y] = planta6
+        self.matriz_espacial[planta7.x][planta7.y] = planta7
+        self.matriz_espacial[planta8.x][planta8.y] = planta8
+        self.matriz_espacial[planta9.x][planta9.y] = planta9
+        self.matriz_espacial[planta10.x][planta10.y] = planta10
 
         self.actualizar_ecosistema
 
@@ -249,14 +310,45 @@ class Ecosistema:
                 organismo = self.matriz_espacial[fila][columna]
                 if isinstance(organismo, Animal):
                     organismo.mover_aleatoriamente(self)
+                    pareja = self.encontrar_pareja(organismo.x, organismo.y)
+                    if pareja:
+                        nuevo_organismo = organismo.reproducir(pareja)
+                        if nuevo_organismo:
+                            self.matriz_espacial[nuevo_organismo.x][
+                                nuevo_organismo.y
+                            ] = nuevo_organismo
 
     def cadena_alimenticia(self):
-        # Lógica de la cadena alimenticia
-        pass
+        for fila in range(len(self.matriz_espacial)):
+            for columna in range(len(self.matriz_espacial[0])):
+                organismo = self.matriz_espacial[fila][columna]
+                if isinstance(organismo, Animal):
+                    presa = self.encontrar_presa(organismo.x, organismo.y)
+                    if presa:
+                        organismo.cazar(presa)
+
+    def encontrar_presa(self, x, y):
+        for i in range(-2, 3):
+            for j in range(-2, 3):
+                nueva_x, nueva_y = x + i, y + j
+                if (
+                    0 <= nueva_x < len(self.matriz_espacial)
+                    and 0 <= nueva_y < len(self.matriz_espacial[0])
+                    and isinstance(
+                        self.matriz_espacial[nueva_x][nueva_y], (Planta, Animal)
+                    )
+                    and (nueva_x, nueva_y) != (x, y)
+                ):
+                    return self.matriz_espacial[nueva_x][nueva_y]
+        return None
 
     def actualizar_ecosistema(self):
         # Lógica para actualizar el estado del ecosistema en cada ciclo
-        pass
+        self.cadena_alimenticia()
+        self.ciclo_vida_reproduccion()
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------#
 
 
 class EcosistemaVisual(arcade.Window):
@@ -284,6 +376,8 @@ class EcosistemaVisual(arcade.Window):
                     texture = snow_texture
                 elif mapa[fila][columna] == 4:
                     texture = sand_texture
+                elif mapa[fila][columna] == 5:
+                    texture = ice_texture
 
                 x = columna * tile_size
                 y = fila * tile_size
@@ -315,6 +409,8 @@ class EcosistemaVisual(arcade.Window):
                 elif isinstance(organismo, Planta):
                     if organismo.especie == "arbol":
                         texture = tree_texture
+                    elif organismo.especie == "cactus":
+                        texture = cactus_texture
                     else:
                         texture = Planta_texture
                     arcade.draw_texture_rectangle(
@@ -328,7 +424,7 @@ class EcosistemaVisual(arcade.Window):
 
 
 # Ejecutar el simulador
-ecosistema = Ecosistema(20, 25)
+ecosistema = Ecosistema(20, 27)
 app = EcosistemaVisual(ecosistema)
 arcade.run()
 
