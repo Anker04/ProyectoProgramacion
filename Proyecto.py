@@ -1,6 +1,6 @@
 import arcade
 import random
-
+import tkinter as tk
 
 # Cargar tiles
 tile_size = 32
@@ -29,7 +29,7 @@ mapa = [
     [1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
     [1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
     [1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-    [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
     [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
     [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1],
@@ -60,24 +60,35 @@ class Animal(Organismo):
         self.especie = especie
         self.dieta = dieta
         self.ciclos = 0
-        self.velocidad = 10  # Ajusta la velocidad según tus preferencias
-        self.tiempo_de_vida = 500
+        self.velocidad = 20  # Ajusta la velocidad según tus preferencias
 
     def cazar(self, presa):
         if isinstance(presa, Planta):
-            self.energia += presa.energia
-            ecosistema.matriz_espacial[presa.x][presa.y] = None
+            if self.dieta == "herbivoro":
+                self.energia += presa.energia
+                ecosistema.matriz_espacial[presa.x][presa.y] = None
         elif isinstance(presa, Animal):
-            self.energia += presa.energia
-            ecosistema.matriz_espacial[presa.x][presa.y] = None
+            # Verifica si el animal es una presa y está cerca
+            distancia = abs(self.x - presa.x) + abs(self.y - presa.y)
+            if (
+                distancia <= 1
+                and presa.dieta != self.dieta
+                and self.energia > presa.energia
+            ):
+                if self.dieta == "carnivoro":
+                    # El carnívoro se come al herbívoro
+                    self.energia += presa.energia
+                    ecosistema.matriz_espacial[presa.x][presa.y] = None
 
     def mover_aleatoriamente(self, ecosistema):
         if self.ciclos % self.velocidad == 0:
             nueva_x = self.x + random.choice([-1, 0, 1])
             nueva_y = self.y + random.choice([-1, 0, 1])
 
-            if 0 <= nueva_x < len(ecosistema.matriz_espacial) and 0 <= nueva_y < len(
-                ecosistema.matriz_espacial[0]
+            if (
+                0 <= nueva_x < len(ecosistema.matriz_espacial)
+                and 0 <= nueva_y < len(ecosistema.matriz_espacial[0])
+                and ecosistema.matriz_espacial[nueva_x][nueva_y] != "Agua"
             ):
                 organismo_en_nueva_posicion = ecosistema.matriz_espacial[nueva_x][
                     nueva_y
@@ -90,9 +101,6 @@ class Animal(Organismo):
                 elif isinstance(organismo_en_nueva_posicion, (Planta, Animal)):
                     self.cazar(organismo_en_nueva_posicion)
         self.ciclos += 1
-        self.tiempo_de_vida -= 1
-        if self.tiempo_de_vida <= 0:
-            ecosistema.matriz_espacial[self.x][self.y] = None
 
     def reproducir(self, pareja):
         if (
@@ -188,6 +196,10 @@ class Ecosistema:
         for fila in range(len(self.matriz_espacial)):
             for columna in range(len(self.matriz_espacial[0])):
                 tipo_bioma = biomas[mapa[fila][columna]]
+                if isinstance(self.matriz_espacial[fila][columna], Animal):
+                    tipo_bioma = "Animal"
+                elif isinstance(self.matriz_espacial[fila][columna], Planta):
+                    tipo_bioma = "Planta"
                 self.matriz_espacial[fila][columna] = tipo_bioma
 
     def encontrar_pareja(self, x, y):
@@ -205,17 +217,29 @@ class Ecosistema:
         animal1 = Animal(5, 5, "lobo", "carnivoro")
         animal2 = Animal(8, 8, "vaca", "herbivoro")
         animal3 = Animal(5, 4, "oveja", "herviboro")
+        animal4 = Animal(7, 9, "lobo", "carnivoro")
+        animal5 = Animal(1, 9, "vaca", "herbivoro")
+        animal6 = Animal(3, 9, "oveja", "herviboro")
         # Agrega más animales según sea necesario
         # ...
         planta1 = Planta(3, 3, "planta")
         planta2 = Planta(12, 12, "arbol")
+        planta3 = Planta(5, 7, "planta")
+        planta4 = Planta(10, 20, "arbol")
+
+        # logica animales
         self.matriz_espacial[animal1.x][animal1.y] = animal1
         self.matriz_espacial[animal2.x][animal2.y] = animal2
         self.matriz_espacial[animal3.x][animal3.y] = animal3
-        # Agrega más animales según sea necesario
-        # ...
+        self.matriz_espacial[animal4.x][animal4.y] = animal4
+        self.matriz_espacial[animal5.x][animal5.y] = animal5
+        self.matriz_espacial[animal6.x][animal6.y] = animal6
+
+        # logica plantas
         self.matriz_espacial[planta1.x][planta1.y] = planta1
         self.matriz_espacial[planta2.x][planta2.y] = planta2
+        self.matriz_espacial[planta3.x][planta3.y] = planta3
+        self.matriz_espacial[planta4.x][planta4.y] = planta4
 
         self.actualizar_ecosistema
 
@@ -279,7 +303,7 @@ class EcosistemaVisual(arcade.Window):
                     elif organismo.especie == "vaca":
                         texture_animal = cebra_texture
                     elif organismo.especie == "oveja":
-                        texture_animal == oveja_texture
+                        texture_animal = oveja_texture
                     arcade.draw_texture_rectangle(
                         x + tile_size / 2,
                         y + tile_size / 2,
@@ -307,3 +331,4 @@ class EcosistemaVisual(arcade.Window):
 ecosistema = Ecosistema(20, 25)
 app = EcosistemaVisual(ecosistema)
 arcade.run()
+
