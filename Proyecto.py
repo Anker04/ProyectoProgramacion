@@ -100,6 +100,7 @@ class Animal(Organismo):
                     nueva_y
                 ]
                 if organismo_en_nueva_posicion is None:
+                    print(f"El {self.especie} se mueve a ({nueva_x}, {nueva_y}).")
                     ecosistema.matriz_espacial[self.x][self.y] = None
                     self.x = nueva_x
                     self.y = nueva_y
@@ -124,6 +125,9 @@ class Animal(Organismo):
                 hijo.energia = nueva_energia
                 self.energia //= 2
                 pareja.energia //= 2
+                print(
+                    f"El {self.especie} se reproduce y crea una cría en ({nueva_posicion[0]}, {nueva_posicion[1]})."
+                )
                 return hijo
 
     def encontrar_posicion_libre(self, x, y):
@@ -142,6 +146,7 @@ class Animal(Organismo):
         self.vida -= 1
         if self.vida <= 0:
             ecosistema.matriz_espacial[self.x][self.y] = None
+            print(f"El {self.especie} muere en ({self.x}, {self.y}).")
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------#
